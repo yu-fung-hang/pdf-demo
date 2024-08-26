@@ -1,0 +1,4 @@
+.mvn/
+.idea/
+# Project exclude paths
+/target/
