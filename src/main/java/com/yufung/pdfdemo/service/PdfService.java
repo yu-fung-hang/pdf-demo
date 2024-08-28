@@ -85,7 +85,7 @@ public class PdfService {
         }
 
         String token = authenticate();
-        URL url = new URL("https://connect.creditsafe.com/v1/companies/CA-X-CA08358159");
+        URL url = new URL("https://connect.creditsafe.com/v1/companies/" + companyId);
         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
         //设置超时间为3秒
         conn.setConnectTimeout(5*1000);
@@ -93,8 +93,8 @@ public class PdfService {
         conn.setRequestProperty("User-Agent", "PostmanRuntime/7.41.1");
         conn.setRequestProperty("Authorization", token);
         conn.setRequestProperty("Accept", "application/pdf");
-        conn.setRequestProperty("Connection", "keep-alive");
-        conn.setRequestProperty("Cache-Control", "no-cache");
+//        conn.setRequestProperty("Connection", "keep-alive");
+//        conn.setRequestProperty("Cache-Control", "no-cache");
 
         //得到输入流
         InputStream inputStream = conn.getInputStream();
