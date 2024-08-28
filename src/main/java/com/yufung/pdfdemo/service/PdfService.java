@@ -94,6 +94,7 @@ public class PdfService {
         conn.setRequestProperty("Authorization", token);
         conn.setRequestProperty("Accept", "application/pdf");
         conn.setRequestProperty("Connection", "keep-alive");
+        conn.setRequestProperty("Cache-Control", "no-cache");
 
         //得到输入流
         InputStream inputStream = conn.getInputStream();
@@ -109,9 +110,9 @@ public class PdfService {
         fos.write(getData);
 
         if(fos!=null){
-            fos.flush();
             fos.close();
         }
+
         if(inputStream!=null){
             inputStream.close();
         }
