@@ -23,7 +23,7 @@ public class PdfController {
         pdfService.preview(response);
     }
 
-    @PostMapping("/saveFromRemote")
+    @GetMapping("/saveFromRemote")
     public void saveFromRemote(@RequestParam("companyId") String companyId) throws IOException {
         pdfService.saveFromRemote(companyId);
     }

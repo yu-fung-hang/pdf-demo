@@ -90,9 +90,11 @@ public class PdfService {
         //设置超时间为3秒
         conn.setConnectTimeout(5*1000);
         //防止屏蔽程序抓取而返回403错误
-        conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
+        conn.setRequestProperty("User-Agent", "PostmanRuntime/7.41.1");
         conn.setRequestProperty("Authorization", token);
         conn.setRequestProperty("Accept", "application/pdf");
+        conn.setRequestProperty("Connection", "keep-alive");
+
         //得到输入流
         InputStream inputStream = conn.getInputStream();
         //获取自己数组
@@ -105,7 +107,9 @@ public class PdfService {
         File file = new File(saveDir + File.separator + companyId + ".pdf");
         FileOutputStream fos = new FileOutputStream(file);
         fos.write(getData);
+
         if(fos!=null){
+            fos.flush();
             fos.close();
         }
         if(inputStream!=null){
