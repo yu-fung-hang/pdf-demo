@@ -3,10 +3,7 @@ package com.yufung.pdfdemo.controller;
 import com.yufung.pdfdemo.service.PdfService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
 
@@ -27,7 +24,7 @@ public class PdfController {
     }
 
     @PostMapping("/saveFromRemote")
-    public void saveFromRemote() throws IOException {
-        pdfService.saveFromRemote();
+    public void saveFromRemote(@RequestParam("companyId") String companyId) throws IOException {
+        pdfService.saveFromRemote(companyId);
     }
 }

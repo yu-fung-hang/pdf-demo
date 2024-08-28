@@ -3,10 +3,13 @@ package com.yufung.pdfdemo.service;
 import com.yufung.pdfdemo.model.CreditSafeAuthenticateResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -76,7 +79,11 @@ public class PdfService {
         outputStream.flush();
     }
 
-    public void saveFromRemote() throws IOException {
+    public void saveFromRemote(String companyId) throws IOException {
+        if (!StringUtils.hasLength(companyId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "companyId cannot be null");
+        }
+
         String token = authenticate();
         URL url = new URL("https://connect.creditsafe.com/v1/companies/CA-X-CA08358159");
         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
