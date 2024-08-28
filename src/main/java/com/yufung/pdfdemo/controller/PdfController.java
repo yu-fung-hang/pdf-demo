@@ -26,8 +26,8 @@ public class PdfController {
         pdfService.preview(response);
     }
 
-    @PostMapping("/getFromRemote")
-    public void getFromRemote() throws IOException {
-        pdfService.getFromRemote();
+    @PostMapping("/saveFromRemote")
+    public void saveFromRemote() throws IOException {
+        pdfService.saveFromRemote();
     }
 }

@@ -76,7 +76,7 @@ public class PdfService {
         outputStream.flush();
     }
 
-    public void getFromRemote() throws IOException {
+    public void saveFromRemote() throws IOException {
         String token = authenticate();
         URL url = new URL("https://connect.creditsafe.com/v1/companies/CA-X-CA08358159");
         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
@@ -117,7 +117,7 @@ public class PdfService {
         return bos.toByteArray();
     }
 
-    public String authenticate() {
+    private String authenticate() {
         try {
             MultiValueMap<String, String> requestMap = new LinkedMultiValueMap<>();
             requestMap.add("username", "creditsafe_production@ott.ca");
