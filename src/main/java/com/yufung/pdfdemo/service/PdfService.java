@@ -1,7 +1,12 @@
 package com.yufung.pdfdemo.service;
 
+import com.yufung.pdfdemo.model.CreditSafeAuthenticateResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -9,6 +14,9 @@ import java.net.URL;
 
 @Service
 public class PdfService {
+    @Autowired
+    RestTemplate restTemplate;
+
     public void download(HttpServletResponse response) {
         try {
             File file = new File("src/main/resources/pdf/2020-Scrum-Guide-US.pdf");
@@ -69,13 +77,14 @@ public class PdfService {
     }
 
     public void getFromRemote() throws IOException {
+        String token = authenticate();
         URL url = new URL("https://connect.creditsafe.com/v1/companies/CA-X-CA08358159");
         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
         //设置超时间为3秒
         conn.setConnectTimeout(5*1000);
         //防止屏蔽程序抓取而返回403错误
         conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
-        conn.setRequestProperty("Authorization", "eyJhbGciOiJSUzI1NiIsImtpZCI6ImNZOGpqZXByakZOZDdVS1FrQ08zcVVycDZMNCIsInR5cCI6IkpXVCIsIng1dCI6ImNZOGpqZXByakZOZDdVS1FrQ08zcVVycDZMNCJ9.eyJuYmYiOjE3MjQ4NjIxODMsImV4cCI6MTcyNDg2NTc4MywiaXNzIjoiaHR0cHM6Ly9teWxvZ2luLmNyZWRpdHNhZmUuY29tIiwiYXVkIjpbImh0dHBzOi8vbXlsb2dpbi5jcmVkaXRzYWZlLmNvbS9yZXNvdXJjZXMiLCJjb25uZWN0X2FwaSIsInVib19hcGlfZ2F0ZXdheSJdLCJjbGllbnRfaWQiOiJjb25uZWN0LmFwaS5jbGllbnQiLCJzdWIiOiIxMDIwMTgzNjMiLCJhdXRoX3RpbWUiOjE3MjQ4NjIxODMsImlkcCI6ImxvY2FsIiwidXNlcm5hbWUiOiJIVCIsImVtYWlsIjoiY3JlZGl0c2FmZV9wcm9kdWN0aW9uQG90dC5jYSIsImN1c3RvbWVySWQiOiIxMDk5MTk0NzYiLCJjb3VudHJ5IjoiQzAiLCJ1c2VyUm9sZSI6IkN1c3RvbWVyIiwid2ViUm9sZUlkIjoiMCIsInNiX2NvdW50cnkiOiJDQSIsInNjb3BlIjpbImNvbm5lY3RfYXBpIiwidWJvX2FwaV9nYXRld2F5Il0sImFtciI6WyJwd2QiXX0.c0POoFexu4RZbIc9fFOJudwLRP8k1pkgyRKyvF3j1ZJ2SdCBc1-I4kM9M8e_hjQ_JlUpY5alN03aHdNaVlAlL81BUjPr0y6Hb4ZZlYEE-9qfgPtHUobVE-Gpr7HySIpVa2uivtkFZOqqjqRromgzCESDpjRFyZd1_8bOJ4dIa_04fbSm3Ju4H9iHUK-LQdXBp-8r0Df42DZoHf12S7w0NKNvR_c1s9YHN9CqVNK-alNcGaHCakMUh0L21990CadWSkemETH_-d4ehcWg4jmjiQYCLW2qkZ7BN2IA2W_u_EGgRDd7G0jlcE7FYcrUoECdSfDUM6App3vN5B6xy39C0Q");
+        conn.setRequestProperty("Authorization", token);
         conn.setRequestProperty("Accept", "application/pdf");
         //得到输入流
         InputStream inputStream = conn.getInputStream();
@@ -106,5 +115,23 @@ public class PdfService {
         }
         bos.close();
         return bos.toByteArray();
+    }
+
+    public String authenticate() {
+        try {
+            MultiValueMap<String, String> requestMap = new LinkedMultiValueMap<>();
+            requestMap.add("username", "creditsafe_production@ott.ca");
+            requestMap.add("password", "owlliho^ra7FOg2A3jiS");
+
+            String url = "https://connect.creditsafe.com/v1/authenticate";
+            CreditSafeAuthenticateResponse apiResponse = restTemplate.postForObject(url, requestMap, CreditSafeAuthenticateResponse.class);
+            if (apiResponse == null) {
+                return null;
+            }
+
+            return apiResponse.getToken();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
