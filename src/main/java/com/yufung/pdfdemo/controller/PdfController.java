@@ -27,7 +27,7 @@ public class PdfController {
     }
 
     @PostMapping("/getFromRemote")
-    public void getFromRemote(HttpServletResponse response) throws IOException {
-        pdfService.getFromRemote(response);
+    public void getFromRemote() throws IOException {
+        pdfService.getFromRemote();
     }
 }

@@ -68,7 +68,7 @@ public class PdfService {
         outputStream.flush();
     }
 
-    public void getFromRemote(HttpServletResponse response) throws IOException {
+    public void getFromRemote() throws IOException {
         URL url = new URL("https://connect.creditsafe.com/v1/companies/CA-X-CA08358159");
         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
         //设置超时间为3秒
