@@ -102,7 +102,7 @@ public class PdfService {
         if(!saveDir.exists()){
             saveDir.mkdir();
         }
-        File file = new File(saveDir+File.separator+"credit-report.pdf");
+        File file = new File(saveDir + File.separator + companyId + ".pdf");
         FileOutputStream fos = new FileOutputStream(file);
         fos.write(getData);
         if(fos!=null){
