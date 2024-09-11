@@ -23,8 +23,13 @@ public class PdfController {
         pdfService.preview(response);
     }
 
-    @GetMapping("/saveFromRemote")
+    @GetMapping("/saveFromRemote/local")
     public void saveFromRemote(@RequestParam("companyId") String companyId) throws IOException {
-        pdfService.saveFromRemote(companyId);
+        pdfService.saveFromRemoteToLocal(companyId);
+    }
+
+    @GetMapping("/saveFromRemote/s3")
+    public void saveFromRemoteToS3(@RequestParam("companyId") String companyId) throws IOException {
+        pdfService.saveFromRemoteToS3(companyId);
     }
 }

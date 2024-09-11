@@ -1,5 +1,6 @@
 package com.yufung.pdfdemo.service;
 
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.yufung.pdfdemo.model.CreditSafeAuthenticateResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ import java.net.URL;
 public class PdfService {
     @Autowired
     RestTemplate restTemplate;
+
+    @Autowired
+    S3Service s3Service;
 
     public void download(HttpServletResponse response) {
         try {
@@ -79,25 +83,8 @@ public class PdfService {
         outputStream.flush();
     }
 
-    public void saveFromRemote(String companyId) throws IOException {
-        if (!StringUtils.hasLength(companyId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "companyId cannot be null");
-        }
-
-        String token = authenticate();
-        URL url = new URL("https://connect.creditsafe.com/v1/companies/" + companyId);
-        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-        //设置超时间为3秒
-        conn.setConnectTimeout(5*1000);
-        //防止屏蔽程序抓取而返回403错误
-        conn.setRequestProperty("User-Agent", "PostmanRuntime/7.41.1");
-        conn.setRequestProperty("Authorization", token);
-        conn.setRequestProperty("Accept", "application/pdf");
-//        conn.setRequestProperty("Connection", "keep-alive");
-//        conn.setRequestProperty("Cache-Control", "no-cache");
-
-        //得到输入流
-        InputStream inputStream = conn.getInputStream();
+    public void saveFromRemoteToLocal(String companyId) throws IOException {
+        InputStream inputStream = getInputStreamFromRemote(companyId);
         //获取自己数组
         byte[] getData = readInputStream(inputStream);
         //文件保存位置
@@ -116,6 +103,34 @@ public class PdfService {
         if(inputStream!=null){
             inputStream.close();
         }
+    }
+
+    public String saveFromRemoteToS3(String companyId) throws IOException {
+        InputStream inputStream = getInputStreamFromRemote(companyId);
+        String bucket = "crp-uat/pdf";
+        return s3Service.putPublicFile(bucket, companyId+".pdf", inputStream, 0, null, CannedAccessControlList.PublicRead);
+    }
+
+    private InputStream getInputStreamFromRemote(String companyId) throws IOException {
+        if (!StringUtils.hasLength(companyId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "companyId cannot be null");
+        }
+
+        String token = authenticate();
+        URL url = new URL("https://connect.creditsafe.com/v1/companies/" + companyId);
+        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+        //设置超时间为3秒
+        conn.setConnectTimeout(5*1000);
+        //防止屏蔽程序抓取而返回403错误
+        conn.setRequestProperty("User-Agent", "PostmanRuntime/7.41.1");
+        conn.setRequestProperty("Authorization", token);
+        conn.setRequestProperty("Accept", "application/pdf");
+//        conn.setRequestProperty("Connection", "keep-alive");
+//        conn.setRequestProperty("Cache-Control", "no-cache");
+
+        //得到输入流
+        InputStream inputStream = conn.getInputStream();
+        return inputStream;
     }
 
     private byte[] readInputStream(InputStream inputStream) throws IOException {

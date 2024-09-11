@@ -39,8 +39,8 @@ public class S3Service {
 
     public String putPublicFile(String bucket, String name, InputStream in, long size, String contentType, CannedAccessControlList acl) {
         ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(size);
-        metadata.setContentType(contentType);
+        //metadata.setContentLength(size);
+        //metadata.setContentType(contentType);
         s3Client.putObject(new PutObjectRequest(bucket, name, in, metadata).withCannedAcl(acl));
         return String.format("https://s3.amazonaws.com/%s/%s", bucket, name);
     }
