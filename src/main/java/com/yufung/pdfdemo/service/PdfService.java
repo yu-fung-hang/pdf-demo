@@ -2,6 +2,7 @@ package com.yufung.pdfdemo.service;
 
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.yufung.pdfdemo.model.CreditSafeAuthenticateResponse;
+import com.yufung.pdfdemo.model.FileDto;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -83,8 +84,11 @@ public class PdfService {
         outputStream.flush();
     }
 
-    public void saveFromRemoteToLocal(String companyId) throws IOException {
-        InputStream inputStream = getInputStreamFromRemote(companyId);
+    public void saveFromRemoteToLocal(FileDto dto) throws IOException {
+        if (StringUtils.isEmpty(dto.getUrl())) {return;}
+        if (StringUtils.isEmpty(dto.getName())) {return;}
+
+        InputStream inputStream = getInputStreamFromRemote(dto.getUrl());
         //获取自己数组
         byte[] getData = readInputStream(inputStream);
         //文件保存位置
@@ -92,7 +96,7 @@ public class PdfService {
         if(!saveDir.exists()){
             saveDir.mkdir();
         }
-        File file = new File(saveDir + File.separator + companyId + ".pdf");
+        File file = new File(saveDir + File.separator + dto.getName() + ".pdf");
         FileOutputStream fos = new FileOutputStream(file);
         fos.write(getData);
 
@@ -105,25 +109,28 @@ public class PdfService {
         }
     }
 
-    public String saveFromRemoteToS3(String companyId) throws IOException {
-        InputStream inputStream = getInputStreamFromRemote(companyId);
-        String bucket = "crp-uat/pdf";
-        return s3Service.putPublicFile(bucket, companyId+".pdf", inputStream, 0, null, CannedAccessControlList.PublicRead);
+    public String saveFromRemoteToS3(FileDto dto) throws IOException {
+        if (StringUtils.isEmpty(dto.getUrl())) {return null;}
+        if (StringUtils.isEmpty(dto.getName())) {return null;}
+
+        InputStream inputStream = getInputStreamFromRemote(dto.getUrl());
+        String bucket = "your-bucket-name";
+        return s3Service.putPublicFile(bucket, dto.getName()+".pdf", inputStream, 0, null, CannedAccessControlList.PublicRead);
     }
 
-    private InputStream getInputStreamFromRemote(String companyId) throws IOException {
-        if (!StringUtils.hasLength(companyId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "companyId cannot be null");
+    private InputStream getInputStreamFromRemote(String urlStr) throws IOException {
+        if (!StringUtils.hasLength(urlStr)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "url cannot be null");
         }
 
-        String token = authenticate();
-        URL url = new URL("https://connect.creditsafe.com/v1/companies/" + companyId);
+        //String token = authenticate();
+        URL url = new URL(urlStr);
         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
         //设置超时间为3秒
         conn.setConnectTimeout(5*1000);
         //防止屏蔽程序抓取而返回403错误
         conn.setRequestProperty("User-Agent", "PostmanRuntime/7.41.1");
-        conn.setRequestProperty("Authorization", token);
+        //conn.setRequestProperty("Authorization", token);
         conn.setRequestProperty("Accept", "application/pdf");
 //        conn.setRequestProperty("Connection", "keep-alive");
 //        conn.setRequestProperty("Cache-Control", "no-cache");
@@ -142,23 +149,5 @@ public class PdfService {
         }
         bos.close();
         return bos.toByteArray();
-    }
-
-    private String authenticate() {
-        try {
-            MultiValueMap<String, String> requestMap = new LinkedMultiValueMap<>();
-            requestMap.add("username", "creditsafe_production@ott.ca");
-            requestMap.add("password", "owlliho^ra7FOg2A3jiS");
-
-            String url = "https://connect.creditsafe.com/v1/authenticate";
-            CreditSafeAuthenticateResponse apiResponse = restTemplate.postForObject(url, requestMap, CreditSafeAuthenticateResponse.class);
-            if (apiResponse == null) {
-                return null;
-            }
-
-            return apiResponse.getToken();
-        } catch (Exception e) {
-            return null;
-        }
     }
 }
