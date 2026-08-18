@@ -26,13 +26,13 @@ public class PdfService {
 
     public void download(HttpServletResponse response) {
         try {
-            File file = new File("src/main/resources/pdf/2020-Scrum-Guide-US.pdf");
+            File file = new File("src/main/resources/pdf/discover.pdf");
             BufferedInputStream bis = null;
             OutputStream os = null;
             FileInputStream fileInputStream = null;
             response.setCharacterEncoding("utf-8");
             response.setContentType("application/pdf");
-            response.setHeader("Content-Disposition", "attachment; filename=scrum.pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=canada.pdf");
             try {
                 fileInputStream = new FileInputStream(file);
                 byte[] buff = new byte[1024];
@@ -68,7 +68,7 @@ public class PdfService {
     }
 
     public void preview(HttpServletResponse response) throws IOException {
-        FileInputStream is = new FileInputStream("src/main/resources/pdf/2020-Scrum-Guide-US.pdf");
+        FileInputStream is = new FileInputStream("src/main/resources/pdf/discover.pdf");
         // 清空response
         response.reset();
         //2、设置文件下载方式
