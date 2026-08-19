@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import com.yufung.pdfdemo.model.PublicFileItem;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -17,14 +18,23 @@ import java.util.stream.Collectors;
 
 @Service
 public class S3Service {
+    @Value("${s3.accessKey}")
+    private String accessKey;
+
+    @Value("${s3.secretKey}")
+    private String secretKey;
+
+    @Value("${s3.region}")
+    private String region;
+
     AmazonS3 s3Client = null;
 
     @PostConstruct
     public void initialize() {
         s3Client = AmazonS3ClientBuilder
                 .standard()
-                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("AKIAU6P3MUKUNBU2WGXG", "vpJ+/Dms2BgMh5wqUx2kn8ZqeteRSInTfWH6bMxx")))
-                .withRegion(Regions.US_EAST_1)
+                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
+                .withRegion(region) // please refer to com.amazonaws.regions.Regions, e.g. us-east-1
                 .build();
     }
 

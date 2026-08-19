@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.yufung.pdfdemo.model.PublicFileItem;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -23,6 +24,9 @@ public class PdfService {
 
     @Autowired
     S3Service s3Service;
+
+    @Value("${s3.bucket}")
+    private String bucket;
 
     public void download(HttpServletResponse response) {
         try {
@@ -113,7 +117,6 @@ public class PdfService {
         if (StringUtils.isEmpty(dto.getName())) {return null;}
 
         InputStream inputStream = getInputStreamFromRemote(dto.getUrl());
-        String bucket = "your-bucket-name";
         return s3Service.putPublicFile(bucket, dto.getName()+".pdf", inputStream, 0, null, CannedAccessControlList.PublicRead);
     }
 
