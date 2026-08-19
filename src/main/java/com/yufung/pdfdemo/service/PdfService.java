@@ -1,8 +1,7 @@
 package com.yufung.pdfdemo.service;
 
 import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.yufung.pdfdemo.model.CreditSafeAuthenticateResponse;
-import com.yufung.pdfdemo.model.FileDto;
+import com.yufung.pdfdemo.model.PublicFileItem;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -84,7 +83,7 @@ public class PdfService {
         outputStream.flush();
     }
 
-    public void saveFromRemoteToLocal(FileDto dto) throws IOException {
+    public void saveFromRemoteToLocal(PublicFileItem dto) throws IOException {
         if (StringUtils.isEmpty(dto.getUrl())) {return;}
         if (StringUtils.isEmpty(dto.getName())) {return;}
 
@@ -109,7 +108,7 @@ public class PdfService {
         }
     }
 
-    public String saveFromRemoteToS3(FileDto dto) throws IOException {
+    public String saveFromRemoteToS3(PublicFileItem dto) throws IOException {
         if (StringUtils.isEmpty(dto.getUrl())) {return null;}
         if (StringUtils.isEmpty(dto.getName())) {return null;}
 

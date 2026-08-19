@@ -1,6 +1,6 @@
 package com.yufung.pdfdemo.controller;
 
-import com.yufung.pdfdemo.model.FileDto;
+import com.yufung.pdfdemo.model.PublicFileItem;
 import com.yufung.pdfdemo.service.PdfService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +24,12 @@ public class PdfController {
 //    }
 
     @PostMapping("/saveFromRemote/local")
-    public void saveFromRemote(@RequestBody FileDto dto) throws IOException {
+    public void saveFromRemote(@RequestBody PublicFileItem dto) throws IOException {
         pdfService.saveFromRemoteToLocal(dto);
     }
 
     @PostMapping("/saveFromRemote/s3")
-    public void saveFromRemoteToS3(@RequestBody FileDto dto) throws IOException {
+    public void saveFromRemoteToS3(@RequestBody PublicFileItem dto) throws IOException {
         pdfService.saveFromRemoteToS3(dto);
     }
 }
